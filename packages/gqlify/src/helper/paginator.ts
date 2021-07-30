@@ -18,7 +18,7 @@ import {Pagination} from '../dataSource/interface';
 
 export const paginate = (
   rows: any[],
-  pagination?: Pagination
+  pagination?: Pagination,
 ): {
   data: any[];
   total: number;
@@ -30,7 +30,7 @@ export const paginate = (
       data: rows,
       total: rows.length,
       hasNextPage: false,
-      hasPreviousPage: false
+      hasPreviousPage: false,
     };
   }
 
@@ -52,7 +52,7 @@ export const paginate = (
       data: flow(transforms)(rows),
       total: rows.length,
       hasNextPage: totalPages > pagination.page,
-      hasPreviousPage: pagination.page > 1
+      hasPreviousPage: pagination.page > 1,
     };
   }
 
@@ -90,6 +90,6 @@ export const paginate = (
     hasPreviousPage:
       !isNil(firstRowId) &&
       !isNil(firstFilteredDataId) &&
-      firstRowId !== firstFilteredDataId
+      firstRowId !== firstFilteredDataId,
   };
 };

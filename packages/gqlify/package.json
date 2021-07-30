@@ -1,8 +1,8 @@
 {
-  "name": "@linkcms/server",
-  "version": "3.3.4",
+  "name": "@gqlify-legacy/server",
+  "version": "3.4.3",
   "description": "gqlify",
-  "main": "lib/index.js",
+  "main": "./lib/index.js",
   "module": "./lib/index.js",
   "jsnext:main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
@@ -10,15 +10,17 @@
     "lib"
   ],
   "scripts": {
-    "clean": "../../node_modules/.bin/rimraf lib",
-    "lint": "../../node_modules/.bin/tslint --force --format verbose \"src/**/*.ts\" \"test/*\"",
-    "build": "npm run clean && npm run lint && echo Using TypeScript && ../../node_modules/.bin/tsc --version && ../../node_modules/.bin/tsc -p ./tsconfig.release.json --pretty",
-    "test": "../../node_modules/.bin/mocha --timeout 100000 --compilers ts:ts-node/register --recursive --exit \"test/**/*.spec.ts\"",
-    "test:grep": "../../node_modules/.bin/mocha --compilers ts:ts-node/register --recursive --exit",
-    "coverage": "../../node_modules/.bin/nyc npm run test",
-    "watch": "npm run build -- --watch",
-    "watch:test": "npm run test -- --watch",
-    "prepublishOnly": "npm run clean && npm run build"
+    "clean": "rimraf ./lib && rm -f tsconfig.release.tsbuildinfo",
+    "lint": "tslint --format verbose \"src/**/*.ts\" \"test/*\"",
+    "lint:fix": "tslint --fix \"src/**/*.ts\" \"test/*\"",
+    "build": "yarn clean && yarn lint && yarn build:ts",
+    "build:ts": "tsc -p ./tsconfig.release.json",
+    "test": "mocha --timeout 100000 --compilers ts:ts-node/register --recursive --exit \"test/**/*.spec.ts\"",
+    "test:grep": "mocha --compilers ts:ts-node/register --recursive --exit",
+    "coverage": "nyc yarn test",
+    "watch": "yarn build -- --watch",
+    "watch:test": "yarn test -- --watch",
+    "prepublishOnly": "yarn clean && yarn build"
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -32,23 +34,21 @@
   "author": "wwwy3y3",
   "license": "ISC",
   "devDependencies": {
-    "@linkcms/firebase": "*",
-    "@linkcms/firestore": "*",
-    "@linkcms/mongodb": "*",
+    "@gqlify-legacy/mongodb": "*",
     "@types/chai-http": "^3.0.5",
+    "@types/mocha": "^9.0.0",
     "apollo-server": "^2.2.5",
     "apollo-server-koa": "^2.2.5",
     "apollo-server-testing": "^2.2.5",
     "chai": "^4.2.0",
     "chai-http": "^4.2.0",
     "faker": "^4.1.0",
-    "firebase-admin": "^6.3.0",
     "graphql": "~14.1.0",
     "graphql-type-json": "^0.2.1",
     "koa": "^2.6.2",
-    "mongodb": "^3.1.10",
     "rimraf": "^2.6.2",
-    "tslint": "^5.11.0"
+    "tslint": "^5.11.0",
+    "typescript": "^4.3.5"
   },
   "peerDependencies": {
     "graphql": ">= 14.1.0"

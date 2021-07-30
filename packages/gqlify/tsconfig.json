@@ -2,8 +2,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "outDir": "./lib"
+    "outDir": "./lib",
+    "types": ["mocha"]
   },
   "include": ["src/**/*.ts", "docs/**/*.ts"],
-  "exclude": ["./node_modules"]
+  "exclude": ["./node_modules"],
 }

@@ -13,7 +13,7 @@ export default class ActivityLogManager {
     this.db = db;
     this.activityLogCollection = db.collection('activityLog');
   }
-  //Salva l'oldValue per poter salvare un update o un delete
+  // Salva l'oldValue per poter salvare un update o un delete
   public async getOldValue(filterQuery) {
     this.oldValue = await this.db
       .collection(this.collectionName)
@@ -26,7 +26,7 @@ export default class ActivityLogManager {
     const now = moment().toDate();
 
     const newValue = await this.db.collection(this.collectionName).findOne({
-      _id: insertedItemId
+      _id: insertedItemId,
     });
 
     const logId = new ObjectID();
@@ -38,12 +38,12 @@ export default class ActivityLogManager {
       itemId: newValue.id,
       userId: this.user ? this.user.id : null,
       date: now,
-      newValue: newValue
+      newValue,
     });
   }
 
   public async logUpdate() {
-    if (!this.oldValue) return;
+    if (!this.oldValue) { return; }
     const now = moment().toDate();
     const newValue = await this.db
       .collection(this.collectionName)
@@ -54,16 +54,16 @@ export default class ActivityLogManager {
       id: logId.toString(),
       action: 'update',
       oldValue: this.oldValue,
-      newValue: newValue,
+      newValue,
       collectionName: this.collectionName,
       itemId: newValue.id,
       userId: this.user ? this.user.id : null,
-      date: now
+      date: now,
     });
   }
 
   public async logDelete() {
-    if (!this.oldValue) return;
+    if (!this.oldValue) { return; }
     const logId = new ObjectID();
     await this.activityLogCollection.insertOne({
       _id: logId,
@@ -73,21 +73,21 @@ export default class ActivityLogManager {
       itemId: this.oldValue.id,
       userId: this.user ? this.user.id : null,
       date: moment().toDate(),
-      oldValue: this.oldValue
+      oldValue: this.oldValue,
     });
   }
 
   public async logOneRelation(oldValueUnlinkFrom, oldValueLinkTo) {
     const newValueUnlinkFrom = oldValueUnlinkFrom
       ? await this.db.collection(this.collectionName).findOne({
-          id: oldValueUnlinkFrom.id
+          id: oldValueUnlinkFrom.id,
         })
       : undefined;
 
     const newValueLinkTo = await this.db
       .collection(this.collectionName)
       .findOne({
-        id: oldValueLinkTo.id
+        id: oldValueLinkTo.id,
       });
     const logId = new ObjectID();
     await this.activityLogCollection.insertOne({
@@ -102,14 +102,14 @@ export default class ActivityLogManager {
       linkToNewValue: newValueLinkTo,
       unlinkFromOldValue: oldValueUnlinkFrom,
       unlinkFromNewValue: newValueUnlinkFrom,
-      date: moment().toDate()
+      date: moment().toDate(),
     });
   }
 
   public async logManyRelation() {
-    if (!this.oldValue) return;
+    if (!this.oldValue) { return; }
     const newValue = await this.db.collection(this.collectionName).findOne({
-      _id: this.oldValue._id
+      _id: this.oldValue._id,
     });
     const logId = new ObjectID();
     await this.activityLogCollection.insertOne({
@@ -118,9 +118,9 @@ export default class ActivityLogManager {
       action: 'manyRelation',
       collectionName: this.collectionName,
       oldValue: this.oldValue,
-      newValue: newValue,
+      newValue,
       userId: this.user ? this.user.id : null,
-      date: moment().toDate()
+      date: moment().toDate(),
     });
   }
 }

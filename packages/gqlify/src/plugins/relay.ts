@@ -19,7 +19,7 @@ const parsePaginationFromArgs = (args: Record<string, any>) => {
 };
 
 const resolvePromiseOrScalar = <T>(
-  promiseOrScalar: T | (() => Promise<T>)
+  promiseOrScalar: T | (() => Promise<T>),
 ): T | Promise<T> => {
   return isFunction(promiseOrScalar) ? promiseOrScalar() : promiseOrScalar;
 };
@@ -27,7 +27,7 @@ const parseOrderBy = (args: Record<string, any>): OrderBy => {
   if (args.orderBy) {
     return {
       field: args.orderBy.split('_')[0],
-      value: args.orderBy.split('_')[1] === 'DESC' ? -1 : 1
+      value: args.orderBy.split('_')[1] === 'DESC' ? -1 : 1,
     };
   }
   return null;
@@ -51,17 +51,17 @@ export default class RelayPlugin implements Plugin {
         hasNextPage: (pageInfo: any) =>
           resolvePromiseOrScalar<boolean>(pageInfo.hasNextPage),
         hasPreviousPage: (pageInfo: any) =>
-          resolvePromiseOrScalar<boolean>(pageInfo.hasPreviousPage)
-      }
+          resolvePromiseOrScalar<boolean>(pageInfo.hasPreviousPage),
+      },
     });
   }
 
   public setPlugins(plugins: Plugin[]) {
     this.whereInputPlugin = plugins.find(
-      plugin => plugin instanceof WhereInputPlugin
+      plugin => plugin instanceof WhereInputPlugin,
     ) as WhereInputPlugin;
     this.baseTypePlugin = plugins.find(
-      plugin => plugin instanceof BaseTypePlugin
+      plugin => plugin instanceof BaseTypePlugin,
     ) as BaseTypePlugin;
   }
 
@@ -107,7 +107,7 @@ export default class RelayPlugin implements Plugin {
 
   public resolveInQuery({
     model,
-    dataSource
+    dataSource,
   }: {
     model: Model;
     dataSource: ListReadable;
@@ -128,7 +128,7 @@ export default class RelayPlugin implements Plugin {
         const orderBy = parseOrderBy(args);
         const response = await dataSource.find(
           {where, pagination, orderBy},
-          context
+          context,
         );
         const connectionData = {
           pageInfo: {
@@ -136,17 +136,17 @@ export default class RelayPlugin implements Plugin {
             hasPreviousPage: response.hasPreviousPage,
             // might change to a new design without id later
             startCursor: get(first(response.data), 'id'),
-            endCursor: get(last(response.data), 'id')
+            endCursor: get(last(response.data), 'id'),
           },
           edges: response.data.map(node => {
             return {
               cursor: node.id,
-              node
+              node,
             };
-          })
+          }),
         };
         return connectionData;
-      }
+      },
     };
   }
 

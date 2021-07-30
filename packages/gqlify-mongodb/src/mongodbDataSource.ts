@@ -9,10 +9,9 @@ import {
   pull,
   unset,
   reduce,
-  forEach
+  forEach,
+  cloneDeep
 } from 'lodash';
-
-import _ from 'lodash';
 
 import flatten from 'flat';
 
@@ -26,7 +25,7 @@ import {
   iterateWhere,
   Mutation,
   ArrayOperator
-} from '@linkcms/server';
+} from '@gqlify-legacy/server';
 
 const defaultObjectCollection = 'canner-object';
 
@@ -56,86 +55,16 @@ export class MongodbDataSource implements DataSource {
     return this.db.collection(this.collectionName);
   }
 
-  private getAggregationForFind({filterQuery, orderBy}) {
-    let nearFilter = undefined;
-
-    //la filter query ha questa struttura: {$and: [{ field_1: condition_1 }, {field_2: condition_2}...]}
-
-    //quindi serve un doppio ciclo per buildare l'aggregation
-    _.forEach(filterQuery['$and'], (v, index) => {
-      _.forEach(v, (f, key) => {
-        if (f['$near']) {
-          let near = _.cloneDeep(f['$near']['$geometry']);
-          delete f['$near']['$geometry'];
-
-          nearFilter = {
-            $geoNear: {
-              // ..._.cloneDeep(f['$near']),
-              maxDistance: f['$near']['$maxDistance'],
-              minDistance: f['$near']['$minDistance'],
-              near: near,
-              key: key,
-              spherical: true,
-              distanceField: 'distance'
-            }
-          };
-          delete f['$near'];
-
-          if (isEmpty(f)) {
-            delete filterQuery['$and'][index][key];
-          }
-
-          return false;
-        }
-      });
-    });
-
-    let stages = [];
-    if (nearFilter) {
-      stages.push(nearFilter);
-    }
-
-    let match = {
-      $match: {}
-    };
-
-    _.forEach(filterQuery['$and'], v => {
-      _.forEach(v, (f, key) => {
-        match['$match'][key] = f;
-      });
-    });
-
-    stages.push(match);
-
-    if (!isEmpty(orderBy)) {
-      stages.push({
-        $sort: {
-          [orderBy.field]: orderBy.value
-        }
-      });
-    } else if (!nearFilter) {
-      stages.push({
-        $sort: {
-          ['createdAt']: -1
-        }
-      });
-    }
-    //console.log(JSON.stringify(stages));
-    return stages;
-
-    //let aggregation = reduce(filterQuery, (agg, filter))
-  }
-
   public async find(args?: ListFindQuery): Promise<PaginatedResponse> {
     const {pagination, where, orderBy = {}} = args || ({} as any);
     const filterQuery = this.whereToFilterQuery(where);
-    let stages = this.getAggregationForFind({
+    const stages = this.getAggregationForFind({
       filterQuery,
-      orderBy
+      orderBy,
     });
 
-    //let query = this.db.collection(this.collectionName).find(filterQuery);
-    let query = this.db.collection(this.collectionName).aggregate(stages);
+    // let query = this.db.collection(this.collectionName).find(filterQuery);
+    const query = this.db.collection(this.collectionName).aggregate(stages);
 
     // query = isEmpty(orderBy)
     //   ? query
@@ -175,7 +104,7 @@ export class MongodbDataSource implements DataSource {
       .insertOne({
         ...payload,
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
       });
 
     if (insertedItem) {
@@ -185,19 +114,19 @@ export class MongodbDataSource implements DataSource {
           {_id: insertedItem.insertedId},
           {
             $set: {
-              id: insertedItem.insertedId.toString()
-            }
+              id: insertedItem.insertedId.toString(),
+            },
           },
           {
             projection: {_id: 0},
-            returnOriginal: false
-          }
+            returnOriginal: false,
+          },
         );
 
       await new ActivityLogManager(
         this.db,
         user,
-        this.collectionName
+        this.collectionName,
       ).logCreate(insertedItem.insertedId);
 
       return updatedItem.value;
@@ -207,7 +136,7 @@ export class MongodbDataSource implements DataSource {
   public async update(
     where: Where,
     mutation: Mutation,
-    graphQlContext: any
+    graphQlContext: any,
   ): Promise<any> {
     const payload = this.transformMutation(mutation);
     const filterQuery = this.whereToFilterQuery(where);
@@ -218,20 +147,20 @@ export class MongodbDataSource implements DataSource {
       const activityLogManager = new ActivityLogManager(
         this.db,
         user,
-        this.collectionName
+        this.collectionName,
       );
 
       const oldValue = await activityLogManager.getOldValue(filterQuery);
 
-      //Se abbiamo l'oldValue usiamo l'id di quello come filtro per l'update
-      //Per evitare problemi di concorrenza
+      // Se abbiamo l'oldValue usiamo l'id di quello come filtro per l'update
+      // Per evitare problemi di concorrenza
       await this.db
         .collection(this.collectionName)
         .updateOne(oldValue ? {id: oldValue.id} : filterQuery, {
           $set: {
             ...payload,
-            updatedAt: now
-          }
+            updatedAt: now,
+          },
         });
 
       await activityLogManager.logUpdate();
@@ -244,7 +173,7 @@ export class MongodbDataSource implements DataSource {
     const activityLogManager = new ActivityLogManager(
       this.db,
       user,
-      this.collectionName
+      this.collectionName,
     );
 
     const oldValue = await activityLogManager.getOldValue(filterQuery);
@@ -253,25 +182,25 @@ export class MongodbDataSource implements DataSource {
     await this.db.collection(this.collectionName).deleteOne(
       oldValue
         ? {
-            id: oldValue.id
+            id: oldValue.id,
           }
-        : filterQuery
+        : filterQuery,
     );
   }
 
   // ToOneRelation
   public async findOneByRelation(
     foreignKey: string,
-    foreignId: string
+    foreignId: string,
   ): Promise<any> {
     const data = await this.db
       .collection(this.collectionName)
       .find({
-        [foreignKey]: foreignId
+        [foreignKey]: foreignId,
       })
       .project({_id: 0})
       .toArray();
-    return data; //first(filter(data, {[foreignKey]: {[Operator.eq]: foreignId}}));
+    return data; // first(filter(data, {[foreignKey]: {[Operator.eq]: foreignId}}));
   }
 
   // ToOneRelation
@@ -279,7 +208,7 @@ export class MongodbDataSource implements DataSource {
     id: string,
     foreignKey: string,
     foreignId: string,
-    graphQlContext: any
+    graphQlContext: any,
   ): Promise<any> {
     // remove oldOwner foreignKey
 
@@ -289,45 +218,45 @@ export class MongodbDataSource implements DataSource {
       .collection(this.collectionName)
       .findOneAndUpdate(
         {[foreignKey]: foreignId},
-        {$unset: {[foreignKey]: ''}, $set: {updatedAt: now}}
+        {$unset: {[foreignKey]: ''}, $set: {updatedAt: now}},
       );
 
-    //Add foreign key to new owner
+    // Add foreign key to new owner
     const oldValueLinkTo = await this.db
       .collection(this.collectionName)
       .findOneAndUpdate(
         {id},
         {$set: {[foreignKey]: foreignId, updatedAt: now}},
-        {returnOriginal: false}
+        {returnOriginal: false},
       );
 
     await new ActivityLogManager(
       this.db,
       user,
-      this.collectionName
+      this.collectionName,
     ).logOneRelation(oldValueUnlinkFrom, oldValueLinkTo);
   }
 
   // OneToManyRelation
   public async findManyFromOneRelation(
     foreignKey: string,
-    foreignId: string
+    foreignId: string,
   ): Promise<any[]> {
     const data = await this.db
       .collection(this.collectionName)
       .find({
-        [foreignKey]: foreignId
+        [foreignKey]: foreignId,
       })
       .project({_id: 0})
       .toArray();
-    return data; //filter(data, {[foreignKey]: {[Operator.eq]: foreignId}});
+    return data; // filter(data, {[foreignKey]: {[Operator.eq]: foreignId}});
   }
 
   // ManyToManyRelation
   public async findManyFromManyRelation(
     sourceSideName: string,
     targetSideName: string,
-    sourceSideId: string
+    sourceSideId: string,
   ) {
     const relationTableName = `_${sourceSideName}_${targetSideName}`;
     const relationData = await this.db
@@ -339,16 +268,16 @@ export class MongodbDataSource implements DataSource {
         ? relationData.targetSideIds
         : [];
 
-    let where = reduce(
+    const where = reduce(
       relationIds,
       (val, id) => {
         val.push({
-          id
+          id,
         });
 
         return val;
       },
-      []
+      [],
     );
 
     if (where.length) {
@@ -367,7 +296,7 @@ export class MongodbDataSource implements DataSource {
     targetSideName: string,
     sourceSideId: string,
     targetSideId: string,
-    graphQlContext: any
+    graphQlContext: any,
   ) {
     const user = graphQlContext.user;
 
@@ -378,7 +307,7 @@ export class MongodbDataSource implements DataSource {
     const activityLogManager = new ActivityLogManager(
       this.db,
       user,
-      relationTableName
+      relationTableName,
     );
 
     await activityLogManager.getOldValue({sourceSideId});
@@ -388,13 +317,13 @@ export class MongodbDataSource implements DataSource {
       {
         $set: {
           sourceSideId,
-          updatedAt: now
+          updatedAt: now,
         },
         $push: {
-          targetSideIds: targetSideId
-        }
+          targetSideIds: targetSideId,
+        },
       },
-      {upsert: true}
+      {upsert: true},
     );
 
     await activityLogManager.logManyRelation();
@@ -405,7 +334,7 @@ export class MongodbDataSource implements DataSource {
     targetSideName: string,
     sourceSideId: string,
     targetSideId: string,
-    graphQlContext: any
+    graphQlContext: any,
   ) {
     const now = moment().toDate();
     const relationTableName = `_${sourceSideName}_${targetSideName}`;
@@ -413,7 +342,7 @@ export class MongodbDataSource implements DataSource {
     const activityLogManager = new ActivityLogManager(
       this.db,
       user,
-      relationTableName
+      relationTableName,
     );
 
     await activityLogManager.getOldValue({sourceSideId});
@@ -422,12 +351,12 @@ export class MongodbDataSource implements DataSource {
       {sourceSideId},
       {
         $pull: {
-          targetSideIds: targetSideId
+          targetSideIds: targetSideId,
         },
         $set: {
-          updatedAt: now
-        }
-      }
+          updatedAt: now,
+        },
+      },
     );
 
     await activityLogManager.logManyRelation();
@@ -445,96 +374,167 @@ export class MongodbDataSource implements DataSource {
 
   public async updateMap(mutation: Mutation): Promise<any> {
     const payload = this.transformMutation(mutation);
-    let now = moment().toDate();
+    const now = moment().toDate();
     if (!isEmpty(payload)) {
       await this.db.collection(this.objectCollection).updateOne(
         {key: this.objectKey},
         {
           $set: {
             ...payload,
-            updatedAt: now
-          }
+            updatedAt: now,
+          },
         },
-        {upsert: true}
+        {upsert: true},
       );
     }
   }
 
+  private getAggregationForFind({filterQuery, orderBy}) {
+    let nearFilter;
+
+    // la filter query ha questa struttura: {$and: [{ field_1: condition_1 }, {field_2: condition_2}...]}
+
+    // quindi serve un doppio ciclo per buildare l'aggregation
+    forEach(filterQuery.$and, (v, index) => {
+      forEach(v, (f, key) => {
+        if (f.$near) {
+          const near = cloneDeep(f.$near.$geometry);
+          delete f.$near.$geometry;
+
+          nearFilter = {
+            $geoNear: {
+              // ..._.cloneDeep(f['$near']),
+              maxDistance: f.$near.$maxDistance,
+              minDistance: f.$near.$minDistance,
+              near,
+              key,
+              spherical: true,
+              distanceField: 'distance',
+            },
+          };
+          delete f.$near;
+
+          if (isEmpty(f)) {
+            delete filterQuery.$and[index][key];
+          }
+
+          return false;
+        }
+      });
+    });
+
+    const stages = [];
+    if (nearFilter) {
+      stages.push(nearFilter);
+    }
+
+    const match = {
+      $match: {},
+    };
+
+    forEach(filterQuery.$and, v => {
+      forEach(v, (f, key) => {
+        match.$match[key] = f;
+      });
+    });
+
+    stages.push(match);
+
+    if (!isEmpty(orderBy)) {
+      stages.push({
+        $sort: {
+          [orderBy.field]: orderBy.value,
+        },
+      });
+    } else if (!nearFilter) {
+      stages.push({
+        $sort: {
+          ['createdAt']: -1,
+        },
+      });
+    }
+    // console.log(JSON.stringify(stages));
+    return stages;
+
+    // let aggregation = reduce(filterQuery, (agg, filter))
+  }
+
   private setFilter(field: string, value, filterQuery) {
-    filterQuery['$and'].push({
+    filterQuery.$and.push({
       [field]: {
         ...(filterQuery[field] || {}),
-        ...value
-      }
+        ...value,
+      },
     });
     return filterQuery;
   }
 
   private whereToFilterQuery(where: Where): FilterQuery<any> {
-    const filterQuery: object = {
-      $and: []
+    const filterQuery = {
+      $and: [],
     };
     iterateWhere(where, (field, op, value) => {
       switch (op) {
         case Operator.or:
-          var json = JSON.parse(value || '');
-          if (Array.isArray(json)) {
-            this.setFilter(field, {$in: json}, filterQuery);
+          const jsonOr = JSON.parse(value || '');
+          if (Array.isArray(jsonOr)) {
+            this.setFilter(field, {$in: jsonOr}, filterQuery);
           }
 
           break;
         case Operator.json:
-          var json = JSON.parse(value || '');
-          var flat = flatten({
-            [field]: json
+          const jsonjson = JSON.parse(value || '');
+          const flatjson = flatten({
+            [field]: jsonjson,
           });
 
-          forEach(flat, (v, k) => {
-            filterQuery['$and'].push({
-              [k]: v
+          forEach(flatjson, (v, k) => {
+            filterQuery.$and.push({
+              [k]: v,
             });
           });
 
           break;
         case Operator.jsonor:
-          //[{"it": true, en: false}, {"de": true}]
+          // [{"it": true, en: false}, {"de": true}]
 
-          var json = JSON.parse(value || '');
+          const jsonor = JSON.parse(value || '');
 
-          var or = [];
+          const or = [];
 
-          _.forEach(json, val => {
-            var flat = flatten({
-              [field]: val
+          forEach(jsonor, val => {
+            const flator = flatten({
+              [field]: val,
             });
 
-            let res = {};
+            const res = {};
 
-            forEach(flat, (v, k) => {
+            forEach(flator, (v, k) => {
               res[k] = v;
             });
 
             or.push(res);
           });
 
-          if (or.length)
-            filterQuery['$and'].push({
-              $or: or
+          if (or.length) {
+            filterQuery.$and.push({
+              $or: or,
             });
+          }
 
           break;
         case Operator.jsonrgxp:
-          var json = JSON.parse(value || '');
-          var flat = flatten({
-            [field]: json
+          const jsonrgxp = JSON.parse(value || '');
+          const flatrgxp = flatten({
+            [field]: jsonrgxp,
           });
 
-          forEach(flat, (v, k) => {
-            filterQuery['$and'].push({
+          forEach(flatrgxp, (v, k) => {
+            filterQuery.$and.push({
               [k]: {
                 $regex: v,
-                $options: 'i'
-              }
+                $options: 'i',
+              },
             });
           });
 
@@ -558,10 +558,10 @@ export class MongodbDataSource implements DataSource {
               $near: {
                 $geometry: {type: value.type, coordinates: value.coordinates},
                 $maxDistance: value.max || 40000,
-                $minDistance: value.min || 0
-              }
+                $minDistance: value.min || 0,
+              },
             },
-            filterQuery
+            filterQuery,
           );
 
           break;
@@ -586,8 +586,8 @@ export class MongodbDataSource implements DataSource {
       }
     });
 
-    if (!filterQuery['$and'].length) {
-      delete filterQuery['$and'];
+    if (!filterQuery.$and.length) {
+      delete filterQuery.$and;
     }
 
     // console.log(filterQuery);
