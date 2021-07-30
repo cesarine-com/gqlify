@@ -35,7 +35,7 @@ export enum Operator {
   json = 'json',
   jsonor = 'jsonor',
   or = 'or',
-  jsonrgxp = 'jsonrgxp'
+  jsonrgxp = 'jsonrgxp',
 }
 
 export type Where = Record<string, Record<string /** Operator */, any>>;
@@ -66,7 +66,7 @@ export interface ListReadable {
 export enum ArrayOperator {
   set = 'set',
   add = 'add',
-  remove = 'remove'
+  remove = 'remove',
 }
 
 export interface ArrayOperation {
@@ -107,13 +107,13 @@ export interface ToOneRelation {
   findOneByRelation(
     foreignKey: string,
     foreignId: string,
-    context: any
+    context: any,
   ): Promise<any>;
   updateOneRelation(
     id: string,
     foreignKey: string,
     foreignId: string,
-    context: any
+    context: any,
   ): Promise<void>;
 }
 
@@ -125,12 +125,12 @@ export interface EmbeddableRelation {
   findOneByEmbedId?(
     foreignKey: string,
     foreignId: string,
-    context: any
+    context: any,
   ): Promise<any>;
   findManyByEmbedId?(
     foreignKey: string,
     foreignId: string,
-    context: any
+    context: any,
   ): Promise<any[]>;
 }
 
@@ -138,7 +138,7 @@ export interface OneToManyRelation {
   findManyFromOneRelation(
     foreignKey: string,
     foreignId: string,
-    context: any
+    context: any,
   ): Promise<any[]>;
 }
 
@@ -148,21 +148,21 @@ export interface ManyToManyRelation {
     sourceSideName: string,
     targetSideName: string,
     sourceSideId: string,
-    context: any
+    context: any,
   ): Promise<any[]>;
   addIdToManyRelation(
     sourceSideName: string,
     targetSideName: string,
     sourceSideId: string,
     targetSideId: string,
-    context: any
+    context: any,
   ): Promise<void>;
   removeIdFromManyRelation(
     sourceSideName: string,
     targetSideName: string,
     sourceSideId: string,
     targetSideId: string,
-    context: any
+    context: any,
   ): Promise<void>;
 }
 

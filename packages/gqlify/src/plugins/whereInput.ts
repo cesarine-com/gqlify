@@ -13,7 +13,7 @@ export default class WhereInputPlugin implements Plugin {
   public visitModel(model: Model, context: Context) {
     // object type model dont need whereInput
     if (model.isObjectType()) {
-      //console.log('MODEL ', model);
+      // console.log('MODEL ', model);
       return;
     }
 
@@ -66,12 +66,12 @@ export default class WhereInputPlugin implements Plugin {
         result[fieldName][operator] = value;
         return result;
       },
-      {} as any
+      {} as any,
     );
   }
 
   private getNameAndOperator(
-    field: string
+    field: string,
   ): {fieldName: string; operator: Operator} {
     field = field.replace(/__/g, '.');
 
@@ -82,7 +82,7 @@ export default class WhereInputPlugin implements Plugin {
     if (lastUnderscoreIndex < 0) {
       return {
         fieldName: field,
-        operator: Operator.regex
+        operator: Operator.regex,
       };
     }
 
@@ -101,7 +101,7 @@ export default class WhereInputPlugin implements Plugin {
   private createNestedWhereFilter(
     field: ObjectField,
     name: string,
-    inputFields: Array<{fieldName: string; type: string}>
+    inputFields: Array<{fieldName: string; type: string}>,
   ) {
     forEach(field.getFields(), (subField, subName) => {
       this.createWhereFilterFromField(subField, subName, name, inputFields);
@@ -112,13 +112,13 @@ export default class WhereInputPlugin implements Plugin {
     field,
     name: string,
     parentName: string,
-    inputFields: Array<{fieldName: string; type: string}>
+    inputFields: Array<{fieldName: string; type: string}>,
   ) {
     if (!field || !name || !name.length) {
       throw new Error('Missing field or name in where input filter definition');
     }
 
-    let completeName =
+    const completeName =
       parentName && parentName.length ? `${parentName}__${name}` : name;
     switch (field.getType()) {
       case DataModelType.OBJECT:
@@ -140,26 +140,26 @@ export default class WhereInputPlugin implements Plugin {
       case DataModelType.ID:
       case DataModelType.BOOLEAN:
       case DataModelType.CUSTOM_SCALAR:
-        //console.log(field.getTypename());
+        // console.log(field.getTypename());
 
         switch (field.getTypename()) {
           case 'JSON':
             inputFields.push({
               fieldName: `${completeName}_json`,
-              type: field.getTypename()
+              type: field.getTypename(),
             });
             inputFields.push({
               fieldName: `${completeName}_jsonrgxp`,
-              type: field.getTypename()
+              type: field.getTypename(),
             });
 
             inputFields.push({
               fieldName: `${completeName}_or`,
-              type: 'JSON'
+              type: 'JSON',
             });
             inputFields.push({
               fieldName: `${completeName}_jsonor`,
-              type: 'JSON'
+              type: 'JSON',
             });
 
             break;
@@ -167,18 +167,18 @@ export default class WhereInputPlugin implements Plugin {
           default:
             inputFields.push({
               fieldName: completeName,
-              type: field.getTypename()
+              type: field.getTypename(),
             });
 
             // eq
             inputFields.push({
               fieldName: `${completeName}_eq`,
-              type: field.getTypename()
+              type: field.getTypename(),
             });
 
             inputFields.push({
               fieldName: `${completeName}_or`,
-              type: 'JSON'
+              type: 'JSON',
             });
         }
 
@@ -195,26 +195,26 @@ export default class WhereInputPlugin implements Plugin {
           case 'Location':
             inputFields.push({
               fieldName: `${completeName}_near`,
-              type: field.getTypename()
+              type: field.getTypename(),
             });
             break;
 
           default:
             inputFields.push({
               fieldName: `${completeName}_gt`,
-              type: field.getTypename()
+              type: field.getTypename(),
             });
             inputFields.push({
               fieldName: `${completeName}_gte`,
-              type: field.getTypename()
+              type: field.getTypename(),
             });
             inputFields.push({
               fieldName: `${completeName}_lt`,
-              type: field.getTypename()
+              type: field.getTypename(),
             });
             inputFields.push({
               fieldName: `${completeName}_lte`,
-              type: field.getTypename()
+              type: field.getTypename(),
             });
         }
 
@@ -236,7 +236,7 @@ export default class WhereInputPlugin implements Plugin {
 
   private createWhereUniqueFilter(
     modelName: string,
-    fields: Record<string, Field>
+    fields: Record<string, Field>,
   ) {
     // create equals on scalar fields
     const inputFields: Array<{fieldName: string; type: string}> = [];
@@ -244,7 +244,7 @@ export default class WhereInputPlugin implements Plugin {
       if (field.isUnique()) {
         inputFields.push({
           fieldName: name,
-          type: field.getTypename()
+          type: field.getTypename(),
         });
       }
     });

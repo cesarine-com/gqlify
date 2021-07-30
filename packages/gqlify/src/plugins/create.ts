@@ -13,6 +13,8 @@ const createObjectInputField = (
   prefix: string,
   field: ObjectField,
   context: Context
+
+  ,
 ) => {
   const {root} = context;
   const content: string[] = [];
@@ -28,7 +30,7 @@ const createObjectInputField = (
       const typeFields = createObjectInputField(
         fieldWithPrefix,
         nestedField,
-        context
+        context,
       );
       const objectInputName = `${fieldWithPrefix}CreateInput`;
       root.addInput(`input ${objectInputName} {${typeFields.join(' ')}}`);
@@ -49,7 +51,7 @@ const createInputField = (
   getCreateInputName: (model: Model) => string,
   getWhereInputName: (model: Model) => string,
   getWhereUniqueInputName: (model: Model) => string,
-  getMutationFactoryFromModel: (model: Model) => MutationFactory
+  getMutationFactoryFromModel: (model: Model) => MutationFactory,
 ) => {
   const {root} = context;
   const capName = model.getNamings().capitalSingular;
@@ -68,7 +70,7 @@ const createInputField = (
         const fieldWithPrefix = `${capName}${upperFirst(name)}`;
         const listOperationInput = `${fieldWithPrefix}CreateInput`;
         root.addInput(
-          `input ${listOperationInput} {set: [${field.getTypename()}]}`
+          `input ${listOperationInput} {set: [${field.getTypename()}]}`,
         );
         fieldType = listOperationInput;
         mutationFactory.markArrayField(name);
@@ -86,7 +88,7 @@ const createInputField = (
       const typeFields = createObjectInputField(
         fieldWithPrefix,
         field,
-        context
+        context,
       );
       const objectInputName = `${fieldWithPrefix}CreateInput`;
       root.addInput(`input ${objectInputName} {${typeFields.join(' ')}}`);
@@ -96,7 +98,7 @@ const createInputField = (
         // wrap with set field
         const listOperationInput = `${fieldWithPrefix}CreateListInput`;
         root.addInput(
-          `input ${listOperationInput} {set: [${objectInputName}]}`
+          `input ${listOperationInput} {set: [${objectInputName}]}`,
         );
         fieldType = listOperationInput;
         mutationFactory.markArrayField(name);
@@ -150,10 +152,10 @@ export default class CreatePlugin implements Plugin {
 
   public setPlugins(plugins: Plugin[]) {
     this.whereInputPlugin = plugins.find(
-      plugin => plugin instanceof WhereInputPlugin
+      plugin => plugin instanceof WhereInputPlugin,
     ) as WhereInputPlugin;
     this.baseTypePlugin = plugins.find(
-      plugin => plugin instanceof BaseTypePlugin
+      plugin => plugin instanceof BaseTypePlugin,
     ) as BaseTypePlugin;
   }
 
@@ -173,7 +175,7 @@ export default class CreatePlugin implements Plugin {
 
   public resolveInMutation({
     model,
-    dataSource
+    dataSource,
   }: {
     model: Model;
     dataSource: ListMutable;
@@ -204,16 +206,16 @@ export default class CreatePlugin implements Plugin {
         const createContext: CreateContext = {
           data,
           response: {},
-          graphqlContext: context
+          graphqlContext: context,
         };
         await wrapCreate(createContext, async ctx => {
           ctx.response = await dataSource.create(
             this.createMutation(model, ctx.data),
-            context
+            context,
           );
         });
         return createContext.response;
-      }
+      },
     };
   }
 
@@ -230,7 +232,7 @@ export default class CreatePlugin implements Plugin {
         this.getCreateInputName,
         this.whereInputPlugin.getWhereInputName,
         this.whereInputPlugin.getWhereUniqueInputName,
-        model.getCreateMutationFactory
+        model.getCreateMutationFactory,
       )}
     }`;
     context.root.addInput(input);

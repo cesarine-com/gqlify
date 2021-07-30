@@ -4,14 +4,14 @@ import {OneToManyRelation} from '../relation';
 import {get, omit} from 'lodash';
 
 export const createHookMap = (
-  relation: ModelRelation
+  relation: ModelRelation,
 ): Record<string, Hook> => {
   const relationImpl = new OneToManyRelation({
     oneSideModel: relation.source,
     manySideModel: relation.target,
     oneSideField: relation.sourceField,
     manySideField: relation.targetField,
-    foreignKey: get(relation.metadata, 'foreignKey')
+    foreignKey: get(relation.metadata, 'foreignKey'),
   });
 
   const oneSideField = relationImpl.getOneSideField();
@@ -19,26 +19,26 @@ export const createHookMap = (
   const create = (sourceId: string, records: any[], context: any) => {
     return Promise.all(
       records.map(record =>
-        relationImpl.createAndAddFromOneSide(sourceId, record, context)
-      )
+        relationImpl.createAndAddFromOneSide(sourceId, record, context),
+      ),
     );
   };
 
   const connect = (sourceId: string, ids: string[], context: any) => {
     return Promise.all(
-      ids.map(id => relationImpl.addIdFromOneSide(sourceId, id, context))
+      ids.map(id => relationImpl.addIdFromOneSide(sourceId, id, context)),
     );
   };
 
   const disconnect = (sourceId: string, ids: string[], context: any) => {
     return Promise.all(
-      ids.map(id => relationImpl.removeIdFromOneSide(sourceId, id, context))
+      ids.map(id => relationImpl.removeIdFromOneSide(sourceId, id, context)),
     );
   };
 
   const destroy = (sourceId: string, ids: string[], context: any) => {
     return Promise.all(
-      ids.map(id => relationImpl.addIdFromOneSide(sourceId, id, context))
+      ids.map(id => relationImpl.addIdFromOneSide(sourceId, id, context)),
     );
   };
 
@@ -68,7 +68,7 @@ export const createHookMap = (
           await connect(
             created.id,
             connectIds,
-            graphqlContext
+            graphqlContext,
           );
         }
 
@@ -96,7 +96,7 @@ export const createHookMap = (
         const createRecords: any[] = get(relationData, 'create');
         const disconnectWhere: Array<{id: string}> = get(
           relationData,
-          'disconnect'
+          'disconnect',
         );
         const deleteWhere: any[] = get(relationData, 'delete');
 
@@ -105,7 +105,7 @@ export const createHookMap = (
           await connect(
             where.id,
             connectIds,
-            graphqlContext
+            graphqlContext,
           );
         }
 
@@ -128,9 +128,9 @@ export const createHookMap = (
 
       resolveFields: {
         [relation.sourceField]: (data, _, graphqlContext) =>
-          relationImpl.joinManyOnOneSide(data, graphqlContext)
-      }
-    }
+          relationImpl.joinManyOnOneSide(data, graphqlContext),
+      },
+    },
   };
 
   return hookMap;

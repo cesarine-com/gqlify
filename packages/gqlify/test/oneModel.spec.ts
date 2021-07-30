@@ -4,10 +4,7 @@
 import chai from 'chai';
 import chaiHttp = require('chai-http');
 chai.use(chaiHttp);
-import * as admin from 'firebase-admin';
-import { FirebaseDataSource } from '@gqlify/firebase';
-import { FirestoreDataSource } from '@gqlify/firestore';
-import { MongodbDataSourceGroup } from '@gqlify/mongodb';
+import { MongodbDataSourceGroup } from '@gqlify-legacy/mongodb';
 import MemoryDataSource from '../src/dataSource/memoryDataSource';
 import { sdl, testSuits } from './testsuites/oneModel';
 import { createGqlifyApp, prepareConfig } from './testsuites/utils';

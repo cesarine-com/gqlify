@@ -25,7 +25,7 @@ const createEmptyHook = (): ReducedHook => ({
 });
 
 export default (hooks: Array<Record<string, Hook>>): Record<string, Hook> => {
-  const reducedHookMap: Record<string, ReducedHook> = reduce(hooks, (result: ReducedHook, hookMap) => {
+  const reducedHookMap = reduce(hooks, (result: ReducedHook, hookMap) => {
     forEach(hookMap, (hook, modelName) => {
       if (!result[modelName]) {
         result[modelName] = createEmptyHook();
