@@ -26,7 +26,10 @@ export class MongodbDataSourceGroup implements DataSourceGroup {
   }
 
   public async initialize() {
-    const mongoClient = await MongoClient.connect(this.uri);
+    const mongoClient = await MongoClient.connect(this.uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     this.db = mongoClient.db(this.dbName);
   }
 
