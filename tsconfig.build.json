@@ -6,8 +6,6 @@
   "include": [],
   "references": [
     { "path": "./packages/gqlify" },
-    { "path": "./packages/gqlify-firebase" },
-    { "path": "./packages/gqlify-firestore" },
     { "path": "./packages/gqlify-mongodb" },
   ]
 }
