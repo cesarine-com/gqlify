@@ -15,10 +15,15 @@ export class MongodbDataSourceGroup implements DataSourceGroup {
   private uri: string;
   private dbName: string;
   private db: Db;
+  private client: MongoClient;
 
   constructor(uri: string, dbName: string) {
     this.uri = uri;
     this.dbName = dbName;
+  }
+
+  public getClient(): MongoClient {
+    return this.client;
   }
 
   public getDb() {
@@ -31,6 +36,7 @@ export class MongodbDataSourceGroup implements DataSourceGroup {
       useUnifiedTopology: true,
     });
     this.db = mongoClient.db(this.dbName);
+    this.client = mongoClient;
   }
 
   public getDataSource(collectionName: string) {
