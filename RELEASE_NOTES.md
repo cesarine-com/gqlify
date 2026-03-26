@@ -1,5 +1,9 @@
 # Release Notes
 
+## 3.5.1
+
+- Fixed CI: mocha now exits after tests complete (was hanging due to open MongoDB connections)
+
 ## 3.5.0
 
 ### Dependency upgrades
