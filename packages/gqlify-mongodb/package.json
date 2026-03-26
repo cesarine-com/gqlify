@@ -1,6 +1,6 @@
 {
   "name": "@gqlify-legacy/mongodb",
-  "version": "3.5.4",
+  "version": "3.5.5",
   "description": "the mongodb package of gqlify",
   "main": "lib/index.js",
   "module": "./lib/index.js",
@@ -11,8 +11,8 @@
   ],
   "scripts": {
     "clean": "rimraf ./lib && rm -f tsconfig.release.tsbuildinfo",
-    "lint": "tslint --format verbose \"src/**/*.ts\" \"test/*\"",
-    "lint:fix": "tslint --fix --force --format verbose \"src/**/*.ts\" \"test/*\"",
+    "lint": "tslint --format verbose \"src/**/*.ts\"",
+    "lint:fix": "tslint --fix --force --format verbose \"src/**/*.ts\"",
     "build": "yarn clean && yarn lint && tsc -p ./tsconfig.release.json",
     "test": "mocha --timeout 100000 --compilers ts:ts-node/register --recursive \"test/**/*.spec.ts\"",
     "test:grep": "mocha --compilers ts:ts-node/register --recursive",
