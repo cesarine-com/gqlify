@@ -1,5 +1,5 @@
 import moment from 'moment-timezone';
-import {ObjectID} from 'mongodb';
+import {ObjectId} from 'mongodb';
 export default class ActivityLogManager {
   private user: any;
   private collectionName: any;
@@ -29,7 +29,7 @@ export default class ActivityLogManager {
       _id: insertedItemId,
     });
 
-    const logId = new ObjectID();
+    const logId = new ObjectId();
     await this.activityLogCollection.insertOne({
       _id: logId,
       id: logId.toString(),
@@ -48,7 +48,7 @@ export default class ActivityLogManager {
     const newValue = await this.db
       .collection(this.collectionName)
       .findOne({id: this.oldValue.id});
-    const logId = new ObjectID();
+    const logId = new ObjectId();
     await this.activityLogCollection.insertOne({
       _id: logId,
       id: logId.toString(),
@@ -64,7 +64,7 @@ export default class ActivityLogManager {
 
   public async logDelete() {
     if (!this.oldValue) { return; }
-    const logId = new ObjectID();
+    const logId = new ObjectId();
     await this.activityLogCollection.insertOne({
       _id: logId,
       id: logId.toString(),
@@ -89,7 +89,7 @@ export default class ActivityLogManager {
       .findOne({
         id: oldValueLinkTo.id,
       });
-    const logId = new ObjectID();
+    const logId = new ObjectId();
     await this.activityLogCollection.insertOne({
       _id: logId,
       id: logId.toString(),
@@ -111,7 +111,7 @@ export default class ActivityLogManager {
     const newValue = await this.db.collection(this.collectionName).findOne({
       _id: this.oldValue._id,
     });
-    const logId = new ObjectID();
+    const logId = new ObjectId();
     await this.activityLogCollection.insertOne({
       _id: logId,
       id: logId.toString(),

@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        run: npx tsc --build tsconfig.build.json
+
+      - name: Test gqlify-mongodb
+        run: npx mocha --timeout 30000 --require ts-node/register --recursive "test/**/*.spec.ts"
+        working-directory: packages/gqlify-mongodb
+        env:
+          MONGO_URI: mongodb://localhost:27017

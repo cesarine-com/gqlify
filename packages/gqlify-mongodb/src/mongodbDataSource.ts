@@ -1,4 +1,4 @@
-import {Db, FilterQuery} from 'mongodb';
+import {Db, Filter} from 'mongodb';
 import moment from 'moment-timezone';
 import ActivityLogManager from './ActivityLogManager';
 import {
@@ -119,7 +119,7 @@ export class MongodbDataSource implements DataSource {
           },
           {
             projection: {_id: 0},
-            returnOriginal: false,
+            returnDocument: 'after',
           },
         );
 
@@ -129,7 +129,7 @@ export class MongodbDataSource implements DataSource {
         this.collectionName,
       ).logCreate(insertedItem.insertedId);
 
-      return updatedItem.value;
+      return updatedItem;
     }
   }
 
@@ -227,7 +227,7 @@ export class MongodbDataSource implements DataSource {
       .findOneAndUpdate(
         {id},
         {$set: {[foreignKey]: foreignId, updatedAt: now}},
-        {returnOriginal: false},
+        {returnDocument: 'after'},
       );
 
     await new ActivityLogManager(
@@ -322,7 +322,7 @@ export class MongodbDataSource implements DataSource {
         $push: {
           targetSideIds: targetSideId,
         },
-      },
+      } as any,
       {upsert: true},
     );
 
@@ -356,7 +356,7 @@ export class MongodbDataSource implements DataSource {
         $set: {
           updatedAt: now,
         },
-      },
+      } as any,
     );
 
     await activityLogManager.logManyRelation();
@@ -469,7 +469,7 @@ export class MongodbDataSource implements DataSource {
     return filterQuery;
   }
 
-  private whereToFilterQuery(where: Where): FilterQuery<any> {
+  private whereToFilterQuery(where: Where): Filter<any> {
     const filterQuery = {
       $and: [],
     };
