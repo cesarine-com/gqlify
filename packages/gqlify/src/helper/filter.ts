@@ -20,7 +20,7 @@ const createFilterFromOperator = (value, op) => {
       return lte(placeholder, value);
 
     case Operator.regex:
-      return (fieldValue) => {
+      return fieldValue => {
         if (typeof fieldValue !== 'string' || typeof value !== 'string') {
           return String(fieldValue) === String(value);
         }
