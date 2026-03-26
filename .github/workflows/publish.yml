@@ -48,6 +48,9 @@ jobs:
           CI: true
           TEST_MONGODB_URI: mongodb://localhost:27017
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Publish @gqlify-legacy/server
         run: npm publish --provenance --access public
         working-directory: packages/gqlify
