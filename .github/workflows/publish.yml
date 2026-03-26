@@ -36,7 +36,7 @@ jobs:
         run: npx tsc --build tsconfig.build.json
 
       - name: Test gqlify-mongodb
-        run: npx mocha --timeout 30000 --require ts-node/register --recursive "test/**/*.spec.ts"
+        run: npx mocha --timeout 30000 --require ts-node/register --recursive --exit "test/**/*.spec.ts"
         working-directory: packages/gqlify-mongodb
         env:
           MONGO_URI: mongodb://localhost:27017
