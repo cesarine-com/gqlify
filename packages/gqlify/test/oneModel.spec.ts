@@ -2,7 +2,7 @@
  * OneModel is for simple CRUD test
  */
 import chai from 'chai';
-import chaiHttp = require('chai-http');
+import chaiHttp from 'chai-http';
 chai.use(chaiHttp);
 import { MongodbDataSourceGroup } from '@gqlify-legacy/mongodb';
 import MemoryDataSource from '../src/dataSource/memoryDataSource';
@@ -10,6 +10,11 @@ import { sdl, testSuits } from './testsuites/oneModel';
 import { createGqlifyApp, prepareConfig } from './testsuites/utils';
 import { DataSource } from '../src';
 import { forEach } from 'lodash';
+
+// Firebase/Firestore are optional — tests are skipped when credentials are unavailable
+declare const FirebaseDataSource: any;
+declare const FirestoreDataSource: any;
+declare const admin: any;
 
 const {serviceAccount, mongoUri} = prepareConfig();
 

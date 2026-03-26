@@ -42,15 +42,7 @@ jobs:
           MONGO_URI: mongodb://localhost:27017
 
       - name: Test gqlify (Memory + MongoDB)
-        run: >-
-          npx mocha --timeout 100000 --require ts-node/register --recursive --exit
-          --grep "Memory|MongoDB"
-          "test/manyToMany.spec.ts"
-          "test/object.spec.ts"
-          "test/oneToMany.spec.ts"
-          "test/oneToManyWithFK.spec.ts"
-          "test/oneToOne.spec.ts"
-          "test/oneToOneWithFK.spec.ts"
+        run: npx mocha --timeout 100000 --require ts-node/register --recursive --exit --grep "Memory|MongoDB" "test/**/*.spec.ts"
         working-directory: packages/gqlify
         env:
           CI: true

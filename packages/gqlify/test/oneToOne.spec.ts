@@ -2,7 +2,7 @@
  * OneToOne test
  */
 import chai from 'chai';
-import chaiHttp = require('chai-http');
+import chaiHttp from 'chai-http';
 chai.use(chaiHttp);
 import { MongodbDataSourceGroup } from '@gqlify-legacy/mongodb';
 import MemoryDataSource from '../src/dataSource/memoryDataSource';
