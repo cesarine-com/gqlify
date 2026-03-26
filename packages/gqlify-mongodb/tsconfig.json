@@ -1,10 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "./src",
     "outDir": "./lib",
   },
-  "include": ["src/**/*.ts", "docs/**/*.ts", "test/*"],
+  "include": ["src/**/*.ts", "docs/**/*.ts"],
   "exclude": ["./node_modules"],
   "references": [
     { "path": "../gqlify" }

@@ -200,7 +200,7 @@ export class MongodbDataSource implements DataSource {
       })
       .project({_id: 0})
       .toArray();
-    return data; // first(filter(data, {[foreignKey]: {[Operator.eq]: foreignId}}));
+    return first(data);
   }
 
   // ToOneRelation

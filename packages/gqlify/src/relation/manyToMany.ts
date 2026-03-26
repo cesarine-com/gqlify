@@ -68,14 +68,14 @@ export default class ManyToMany implements Relation {
   public async createAndAddIdForModelA(
     {modelAId, modelBData}: {modelAId: string, modelBData: Record<string, any>}, context: any) {
     const mutation = this.modelB.getCreateMutationFactory().createMutation(modelBData);
-    const record = await this.modelB.getDataSource().create(mutation);
+    const record = await this.modelB.getDataSource().create(mutation, context);
     return this.addId({modelAId, modelBId: record.id}, context);
   }
 
   public async createAndAddIdForModelB(
     {modelBId, modelAData}: {modelBId: string, modelAData: Record<string, any>}, context: any) {
     const mutation = this.modelA.getCreateMutationFactory().createMutation(modelAData);
-    const record = await this.modelA.getDataSource().create(mutation);
+    const record = await this.modelA.getDataSource().create(mutation, context);
     return this.addId({modelBId, modelAId: record.id}, context);
   }
 
@@ -98,12 +98,12 @@ export default class ManyToMany implements Relation {
   }
 
   public async deleteAndRemoveIdFromModelA({modelAId, modelBId}: {modelAId: string, modelBId: string}, context: any) {
-    await this.modelA.getDataSource().delete({id: {[Operator.eq]: modelAId}});
+    await this.modelA.getDataSource().delete({id: {[Operator.eq]: modelAId}}, context);
     return this.removeId({modelAId, modelBId}, context);
   }
 
   public async deleteAndRemoveIdFromModelB({modelAId, modelBId}: {modelAId: string, modelBId: string}, context: any) {
-    await this.modelB.getDataSource().delete({id: {[Operator.eq]: modelBId}});
+    await this.modelB.getDataSource().delete({id: {[Operator.eq]: modelBId}}, context);
     return this.removeId({modelAId, modelBId}, context);
   }
 
