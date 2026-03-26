@@ -158,9 +158,12 @@ export function testSuits() {
           .then(res => res.createUser);
     }));
 
-    // get all data from source
-    const findAllQuery = await (this as any).dataSources.users.find();
-    const usersFromDB = findAllQuery.data;
+    // get all data via GraphQL
+    const {users: usersFromDB} = await (this as any).graphqlRequest(`
+      query {
+        users {${fields}}
+      }
+    `);
 
     // find 5th user
     const expectCertainUser = usersFromDB[4];
@@ -229,9 +232,12 @@ export function testSuits() {
           .then(res => res.createUser);
     }));
 
-    // get all data from source
-    const findAllQuery = await (this as any).dataSources.users.find();
-    const usersFromDB = findAllQuery.data;
+    // get all data via GraphQL
+    const {users: usersFromDB} = await (this as any).graphqlRequest(`
+      query {
+        users {${fields}}
+      }
+    `);
 
     // find users with status NOT_OK
     const expectedNotOkUsers = usersFromDB.filter(user => user.status === 'NOT_OK');

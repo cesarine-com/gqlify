@@ -18,6 +18,17 @@ const createFilterFromOperator = (value, op) => {
 
     case Operator.lte:
       return lte(placeholder, value);
+
+    case Operator.regex:
+      return (fieldValue) => {
+        if (typeof fieldValue !== 'string' || typeof value !== 'string') {
+          return String(fieldValue) === String(value);
+        }
+        return new RegExp(value, 'i').test(fieldValue);
+      };
+
+    default:
+      return eq(value);
   }
 };
 
