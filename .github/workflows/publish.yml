@@ -8,6 +8,10 @@ jobs:
   publish:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      id-token: write
+
     services:
       mongodb:
         image: mongo:7
@@ -52,13 +56,9 @@ jobs:
           TEST_MONGODB_URI: mongodb://localhost:27017
 
       - name: Publish @gqlify-legacy/server
-        run: npm publish
+        run: npm publish --provenance --access public
         working-directory: packages/gqlify
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @gqlify-legacy/mongodb
-        run: npm publish
+        run: npm publish --provenance --access public
         working-directory: packages/gqlify-mongodb
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
