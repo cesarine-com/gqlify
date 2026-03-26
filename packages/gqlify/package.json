@@ -1,6 +1,6 @@
 {
   "name": "@gqlify-legacy/server",
-  "version": "3.5.3",
+  "version": "3.5.4",
   "description": "gqlify",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
@@ -30,6 +30,11 @@
     "graphql-tools": "^4.0.2",
     "lodash": "^4.17.10",
     "pluralize": "^7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cesarine-com/gqlify",
+    "directory": "packages/gqlify"
   },
   "author": "wwwy3y3",
   "license": "ISC",

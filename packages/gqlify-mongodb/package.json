@@ -1,6 +1,6 @@
 {
   "name": "@gqlify-legacy/mongodb",
-  "version": "3.5.3",
+  "version": "3.5.4",
   "description": "the mongodb package of gqlify",
   "main": "lib/index.js",
   "module": "./lib/index.js",
@@ -21,7 +21,11 @@
     "watch:test": "yarn test -- --watch",
     "prepublishOnly": "yarn clean && yarn build"
   },
-  "repository": "https://github.com/Canner/gqlify",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cesarine-com/gqlify",
+    "directory": "packages/gqlify-mongodb"
+  },
   "author": "FrankYang0529",
   "license": "Apache-2.0",
   "dependencies": {
