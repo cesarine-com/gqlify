@@ -6,5 +6,5 @@ yarn-error.log
 .DS_Store
 *.env
 serviceAccountKey.json
-tsconfig.release.tsbuildinfo
+*.tsbuildinfo
 .idea
