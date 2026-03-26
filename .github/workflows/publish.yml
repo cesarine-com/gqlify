@@ -1,0 +1,64 @@
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build
+        run: npx tsc --build tsconfig.build.json
+
+      - name: Test gqlify-mongodb
+        run: npx mocha --timeout 30000 --require ts-node/register --recursive "test/**/*.spec.ts"
+        working-directory: packages/gqlify-mongodb
+        env:
+          MONGO_URI: mongodb://localhost:27017
+
+      - name: Test gqlify (Memory + MongoDB)
+        run: >-
+          npx mocha --timeout 100000 --require ts-node/register --recursive --exit
+          --grep "Memory|MongoDB"
+          "test/manyToMany.spec.ts"
+          "test/object.spec.ts"
+          "test/oneToMany.spec.ts"
+          "test/oneToManyWithFK.spec.ts"
+          "test/oneToOne.spec.ts"
+          "test/oneToOneWithFK.spec.ts"
+        working-directory: packages/gqlify
+        env:
+          CI: true
+          TEST_MONGODB_URI: mongodb://localhost:27017
+
+      - name: Publish @gqlify-legacy/server
+        run: npm publish --provenance --access public
+        working-directory: packages/gqlify
+
+      - name: Publish @gqlify-legacy/mongodb
+        run: npm publish --provenance --access public
+        working-directory: packages/gqlify-mongodb

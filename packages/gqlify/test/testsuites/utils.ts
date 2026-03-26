@@ -62,15 +62,18 @@ export const createGqlifyApp = (sdl: string, dataSources: Record<string, any>) =
 
 export const prepareConfig = () => {
   let mongoUri: string;
-  let serviceAccount: Record<string, any>;
+  let serviceAccount: Record<string, any> | null = null;
 
   if (process.env.CI) {
-    mongoUri = process.env.TEST_MONGODB_URI;
-    serviceAccount = JSON.parse(process.env.TEST_SERVICE_ACCOUNT);
+    mongoUri = process.env.TEST_MONGODB_URI || 'mongodb://localhost:27017';
+    try {
+      serviceAccount = JSON.parse(process.env.TEST_SERVICE_ACCOUNT);
+    } catch { /* Firebase tests will be skipped */ }
   } else {
-    // local dev
     mongoUri = 'mongodb://localhost:27017';
-    serviceAccount = JSON.parse(readFileSync(path.resolve(__dirname, '../serviceAccountKey.json'), {encoding: 'utf8'}));
+    try {
+      serviceAccount = JSON.parse(readFileSync(path.resolve(__dirname, '../serviceAccountKey.json'), {encoding: 'utf8'}));
+    } catch { /* Firebase tests will be skipped */ }
   }
 
   return {mongoUri, serviceAccount};
